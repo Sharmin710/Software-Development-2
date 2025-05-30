@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Notifications</h2>
+    <ul>
+        {% for notification in notifications %}
+            <div class="{% if not notification.is_read %}bg-yellow-100{% endif %}">
+                {{ notification.message }} - {{ notification.created_at|timesince }} ago
+                {% if not notification.is_read %}
+                    <a href="{% url 'mark_notification_as_read' notification.id %}">Mark as Read</a>
+                {% elif notification.is_read %}
+                    <a href="{% url 'mark_as_unread' notification.id %}">Mark as Unread</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'mark_all_notifications_as_read' %}">Mark All as Read</a>
+{% endblock %}

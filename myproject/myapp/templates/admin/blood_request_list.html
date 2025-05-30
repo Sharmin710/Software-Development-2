@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .btn-edit, .btn-delete {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 5px 12px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 0 2px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .btn-delete {
+    background-color: #f44336; /* Red */
+  }
+  .btn-edit:hover {
+    background-color: #45a049;
+  }
+  .btn-delete:hover {
+    background-color: #da190b;
+  }
+</style>
+
+
+  <h1>All Blood Requests</h1>
+
+  {% if requests %}
+    <table border="1" cellpadding="8" cellspacing="0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Patient Name</th>
+          <th>Requested By</th>
+          <th>Blood Group</th>
+          <th>Quantity</th>
+          <th>Needed By</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in requests %}
+          <tr>
+            <td>{{ req.pk }}</td>
+            <td>{{ req.patient_name }}</td>
+            <td>{{ req.requester.username }}</td>
+            <td>{{ req.blood.blood_group }}</td>
+            <td>{{ req.r_qty }}</td>
+            <td>{{ req.blood_need_when|date:"Y-m-d H:i" }}</td>
+            <td>{{ req.get_status_display }}</td>
+            <td>
+            <a href="{% url 'admin-request-edit' pk=req.pk %}" class="btn-edit">Edit</a> |
+            <form action="{% url 'admin-request-delete' pk=req.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Are you sure you want to delete this request?');" class="btn-delete">Delete</button>
+            </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No blood requests found.</p>
+  {% endif %}
+
+{% endblock %}

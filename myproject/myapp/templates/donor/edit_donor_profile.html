@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto py-8 px-4">
+    {% if user.role == 'donor' %}
+        <h3 class="mt-6 text-lg font-semibold text-gray-700">Donor Details</h3>
+        <form method="post" class="space-y-4 mt-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                Update Profile
+            </button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

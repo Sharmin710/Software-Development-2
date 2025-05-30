@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-5xl mx-auto py-8 px-4">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="bg-green-100 text-green-700 border border-green-300 px-4 py-2 rounded mb-4">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <h1 class="text-2xl font-bold mb-4 text-red-600">All Blood Requests</h1>
+
+    <!-- Search Form -->
+    <form method="get" class="mb-6 flex flex-col md:flex-row gap-4 items-center">
+        <select name="blood_group" class="border p-2 rounded w-full md:w-64">
+            <option value="">-- Filter by Blood Group --</option>
+            {% for blood in blood_list %}
+                {% if blood.blood_group != "Unknown" %}
+                    <option value="{{ blood.blood_group }}" {% if selected_group == blood.blood_group %}selected{% endif %}>
+                        {{ blood.blood_group }}
+                    </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Search</button>
+    </form>
+
+
+    <!-- Requests Table -->
+    <div class="overflow-x-auto bg-white shadow rounded">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2 text-left">Patient Name</th>       <!-- Added -->
+                    <th class="px-4 py-2 text-left">Email</th>
+                    <th class="px-4 py-2 text-left">Phone</th>
+                    <th class="px-4 py-2 text-left">Address</th>
+                    <th class="px-4 py-2 text-left">Blood Group</th>
+                    <th class="px-4 py-2 text-left">Quantity</th>
+                    <th class="px-4 py-2 text-left">Need By</th>  <!-- Added -->
+                    <th class="px-4 py-2 text-left">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for request in requests %}
+                    <tr>
+                        <td class="px-4 py-2" data-label="Patient Name">{{ request.patient_name }}</td>
+                        <td class="px-4 py-2" data-label="Email">{{ request.r_email }}</td>
+                        <td class="px-4 py-2" data-label="Phone">{{ request.r_phone }}</td>
+                        <td class="px-4 py-2" data-label="Address">{{ request.r_address }}</td>
+                        <td class="px-4 py-2" data-label="Blood Group">{{ request.blood.blood_group }}</td>
+                        <td class="px-4 py-2" data-label="Quantity">{{ request.r_qty }}</td>
+                        <td class="px-4 py-2" data-label="Need By">{{ request.blood_need_when|date:"Y-m-d H:i" }}</td>
+                        <td class="px-4 py-2" data-label="Action">
+                            {% if request.status == "pending" and user.role == "donor" %}
+                                <form action="{% url 'accept_blood_request' pk=request.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">Accept</button>
+                                </form>
+                            {% else %}
+                                <span class="text-gray-600">{{ request.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="px-4 py-4 text-center text-gray-500">No blood requests found.</td> <!-- colspan updated to 8 -->
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<style>
+    /* Container */
+    .container {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 1rem 1.5rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background: #f9fafb;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Message */
+    .message {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.25rem;
+    font-weight: 500;
+    }
+
+    /* Heading */
+    h1 {
+    color: #b91c1c;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+    }
+
+    /* Search form */
+    form.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    }
+
+    form.search-form select {
+    flex: 1 1 200px;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    }
+
+    form.search-form select:focus {
+    outline: none;
+    border-color: #dc2626; /* red-600 */
+    box-shadow: 0 0 5px #dc2626;
+    }
+
+    form.search-form button {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    }
+
+    form.search-form button:hover {
+    background-color: #b91c1c;
+    }
+
+    /* Table container */
+    .table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Table */
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    }
+
+    thead tr {
+    background-color: #f3f4f6;
+    color: #374151;
+    font-weight: 600;
+    }
+
+    th, td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: middle;
+    }
+
+    tbody tr:hover {
+    background-color: #fef2f2; /* soft red background on hover */
+    }
+
+    /* Accept button */
+    .accept-btn {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    }
+
+    .accept-btn:hover {
+    background-color: #15803d;
+    }
+
+    /* Status text */
+    .status-text {
+    color: #6b7280; /* gray-600 */
+    font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+    .container {
+        padding: 1rem;
+    }
+    form.search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    form.search-form select,
+    form.search-form button {
+        width: 100%;
+    }
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+    thead tr {
+        display: none;
+    }
+    tbody tr {
+        margin-bottom: 1.5rem;
+        background: #fff;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+    }
+    tbody td {
+        padding-left: 50%;
+        position: relative;
+        text-align: right;
+        font-size: 0.9rem;
+    }
+    tbody td::before {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        width: 45%;
+        padding-right: 1rem;
+        white-space: nowrap;
+        transform: translateY(-50%);
+        font-weight: 600;
+        text-align: left;
+        content: attr(data-label);
+    }
+    /* Adjust buttons and status text for small screens */
+    .accept-btn, .status-text {
+        display: inline-block;
+        width: auto;
+        text-align: center;
+        font-size: 1rem;
+    }
+    }
+</style>
+
+{% endblock %}

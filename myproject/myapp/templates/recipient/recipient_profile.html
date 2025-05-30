@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto p-6 bg-white rounded shadow mt-8">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="bg-green-100 text-green-700 border border-green-300 px-4 py-2 rounded mb-4">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <h2 class="text-2xl font-bold text-blue-600 mb-4">Recipient Profile</h2>
+
+    <ul class="space-y-2">
+        <li><strong>Full Name:</strong> {{ recipient.name }}</li>
+        <li><strong>Email:</strong> {{ user.email }}</li>
+        <li><strong>Phone:</strong> {{ recipient.phone }}</li>
+        <li><strong>Date of Birth:</strong> {{ recipient.dob }}</li>
+        <li><strong>Address:</strong> {{ recipient.address }}</li>
+        <li><strong>Gender:</strong> {{ recipient.gender }}</li>
+        <li><strong>User Identity:</strong> {{ recipient.get_recipient_type_display }}</li>
+        <li><strong>Medical Condition:</strong> {{ recipient.medical_condition }}</li>
+        <li><strong>Blood Group:</strong> {{ recipient.blood.blood_group }}</li>
+    </ul>
+
+    <div class="mt-4 text-right">
+        <a href="{% url 'edit_recipient_profile' %}" class="text-blue-600 hover:underline">Edit Profile</a>
+    </div>
+
+    <h3 class="text-xl font-semibold mt-6 mb-2">Blood Requests</h3>
+    {% if blood_requests %}
+        <ul class="space-y-2">
+        {% for request in blood_requests %}
+            <li class="border p-4 rounded">
+                <p><strong>Requested Blood:</strong> {{ request.blood.blood_group }}</p>
+                <p><strong>Quantity:</strong> {{ request.r_qty }} unit(s)</p>
+                <p><strong>Date:</strong> {{ request.created_at|date:"M d, Y" }}</p>
+                <p><strong>Status:</strong> {% if request.donor %}Donor Assigned{% else %}Pending{% endif %}</p>
+                <div class="mt-2">
+                    <a href="{% url 'edit_blood_request' request.id %}" class="text-blue-600 hover:underline">Edit</a>
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-500">No blood requests submitted yet.</p>
+    {% endif %}
+    
+    <div class="mt-8 text-center">
+        <a href="{% url 'blood-request' %}" class="inline-block bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">Request Blood</a>
+    </div>
+</div>
+{% endblock %}
